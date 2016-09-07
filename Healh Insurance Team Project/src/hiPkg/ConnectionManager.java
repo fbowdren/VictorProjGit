@@ -12,7 +12,7 @@ public class ConnectionManager {
 	    private static String url = "jdbc:mysql://localhost:3306/healthinsurance";    
 	    private static String driverName = "com.mysql.jdbc.Driver";   
 	    private static String username = "root";   
-	    private static String password = "root";
+	    private static String password = "password";
 	    private static Connection con;
 
 	    

@@ -10,13 +10,33 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Test {
+	/** @author
+	 *  Gary Mc Monagle, 
+	 *  Javadoc: Eoin Gralton
+	 *  Connection: Eoin
+	 *  Statements to fill DB with params: Gary
+	 *  Fiona Bowdren & Emma Mc Namee: Initial get & set classes to configure system
+	 *  Declan Mc Daid: Login System for Security
+	 *  
+	 *  Planning phase by all members 
+	 */
 
-
-	private static Connection conn = new ConnectionManager("root", "root").getConnection();
+/**
+ * @param 
+ * Create a connection to the DB with basic credentials (Login)
+ */
+	private static Connection conn = new ConnectionManager("root", "password").getConnection();
 	
 	
 	//method to write an ocustomer object to the db.
 	//only works for new customers as change setting needed. Update in sql
+	/**
+	 * 
+	 * @param clientIn
+	 * @return
+	 * @throws SQLException
+	 * Write a clinet ti the DB Using the basic parameters such as name etc.
+	 */
 	public static int writeClientToDataBase(Client clientIn) throws SQLException{
 		//if (myCu.isExisting){
 			//write for updating needed
@@ -35,6 +55,13 @@ public class Test {
 		return rs.getInt(1);
 
 	}
+	/**
+	 * 
+	 * @param clientId
+	 * @param conds
+	 * @throws SQLException
+	 * Using this to display the commands 
+	 */
 	public static void writeClientConditions(int clientId, ArrayList<Condition> conds) throws SQLException{
 		for(int i = 0; i<conds.size(); i++){
 			String sql = "insert into client_term (client_id, term_id) values (?,?)";
@@ -46,6 +73,12 @@ public class Test {
 		}
 		
 	}
+	/**
+	 * 
+	 * @param policyNo
+	 * @return
+	 * @throws SQLException
+	 */
 	public static Policy readPolicy(int policyNo) throws SQLException{
 		Statement stmt = conn.createStatement();
 		String query = "select policy.contact_no, policy.email, policy_type_id from policy where policy.policy_id = "+policyNo+";";
@@ -76,47 +109,56 @@ public class Test {
 		
 		return new Policy(myClientArray, conNo, email, pt);
 	}
-	public static void main(String[] args) throws SQLException{
+	/**
+	 * 
+	 * @param args
+	 * @throws SQLException
+	 * 
+	 * Run the class 
+	 */
+	public static void main(String[] args) throws SQLException
+	{
+	/*	
+	Policy p = DatabaseManager.readPolicy(2);
 		
-//		Policy p = DatabaseManager.readPolicy(2);
-//		
-//		Client a = DatabaseManager.readPolicy(2).getClients().get(0);
-//		Client b = DatabaseManager.readPolicy(2).getClients().get(0);
-//		ArrayList<Client> j = p.getClients();
-//		j.remove(0);
-//		p.setClients(j);
-//		//p.setClients(clients);
-//		b.setAge(200);
-//		b.setFname("Frank");
-//		b.setLname("Hoolahan");
-//		Condition c = new Condition(2, "Deaf", 100);
-//		ArrayList<Condition> t = b.getConditions();
-//		t.add(c);
-//		DatabaseManager.updatePolicy(DatabaseManager.readPolicy(2), p);
-//		b.setConditions(new ArrayList<Condition>()); 
-//		
-//		//DatabaseManager.updateClient(b,a);
-//		DatabaseManager.updatePolicy(DatabaseManager.readPolicy(2), p);
+		Client a = DatabaseManager.readPolicy(2).getClients().get(0);
+		Client b = DatabaseManager.readPolicy(2).getClients().get(0);
+		ArrayList<Client> j = p.getClients();
+		j.remove(0);
+		p.setClients(j);
+		p.setClients(clients);
+		b.setAge(200);
+	b.setFname("Frank");
+	b.setLname("Hoolahan");
+	Condition c = new Condition(2, "Deaf", 100);
+		ArrayList<Condition> t = b.getConditions();
+		t.add(c);
+		DatabaseManager.updatePolicy(DatabaseManager.readPolicy(2), p);
+		b.setConditions(new ArrayList<Condition>()); 
+	
+		DatabaseManager.updateClient(b,a);
+		DatabaseManager.updatePolicy(DatabaseManager.readPolicy(2), p);
 
-//		ArrayList<Condition> cs = new ArrayList<Condition>();
-//		cs.add(new Condition(1, "a", 100));
-//		ArrayList<Client> cls = new ArrayList<Client>(); 
-//		cls.add(new Client("Gary", "McMonagle", 23, cs));
-//		PolicyType pt = new PolicyType("name", 10, 1)
-//		Policy p = new Policy(cls, "0863007837", "gary.mcmonagle@gmail.com", pt);
-//		DatabaseManager.writePolicy(p);
-//		
-//		Policy p = DatabaseManager.readPolicy(4);
-//		p.getClients().get(0).setAge(30);
-//		p.getType().setId(2);
-//		p.setContactNo("0749110168");
-//				System.out.println(DatabaseManager.readPolicy(4).getId());
-////		System.out.println(p.getType().getId());
-//		p.setEmail("gary@hotmail.com");
-//		DatabaseManager.updatePolicy(DatabaseManager.readPolicy(4), p);
+		ArrayList<Condition> cs = new ArrayList<Condition>();
+		cs.add(new Condition(1, "a", 100));
+		ArrayList<Client> cls = new ArrayList<Client>(); 
+		cls.add(new Client("Gary", "McMonagle", 23, cs));
+		PolicyType pt = new PolicyType("name", 10, 1)
+		Policy p = new Policy(cls, "0863007837", "gary.mcmonagle@gmail.com", pt);
+		DatabaseManager.writePolicy(p);
 		
-		//DatabaseManager.deletePolicy(4);
+		Policy p = DatabaseManager.readPolicy(4);
+		p.getClients().get(0).setAge(30);
+		p.getType().setId(2);
+		p.setContactNo("0749110168");
+				System.out.println(DatabaseManager.readPolicy(4).getId());
+		System.out.println(p.getType().getId());
+		p.setEmail("gary@hotmail.com");
+		DatabaseManager.updatePolicy(DatabaseManager.readPolicy(4), p);
 		
-
-	}
+		DatabaseManager.deletePolicy(4);
+		
+*/
+	
+}
 }
