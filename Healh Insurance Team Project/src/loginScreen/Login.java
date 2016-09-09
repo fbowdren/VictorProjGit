@@ -17,6 +17,7 @@ public static void main(String[] args) {
 Login frameTabel = new Login();
 }
 
+	
 	JButton blogin = new JButton("Login");
 	JPanel panel = new JPanel();
 	JTextField txuser = new JTextField(15);

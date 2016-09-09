@@ -13,7 +13,7 @@ public class NewFrame extends JFrame {
 		NewFrame frameTabel = new NewFrame();
 	}
 
-	JLabel welcome = new JLabel("Welcome to a New Frame");
+	JLabel welcome = new JLabel("Please close and go back to the Console");
 	JPanel panel = new JPanel();
 
 	NewFrame(){
