@@ -2,6 +2,7 @@ package hiPkg;
 
 import java.util.ArrayList;
 
+
 public class Policy {
 	
 	private int id;
@@ -55,7 +56,31 @@ public class Policy {
 		this.type = type;
 	}
 	public String toString(){
-		return type + "\n" + clients;
+		String toReturn = "";
+		toReturn += type+"\n";
+		toReturn += "Email: " + email+"\n";
+		toReturn += "Contact Number: " + contactNo+"\n\n"; 
+		//toReturn += "People: \n";
+		for(int i = 0; i<clients.size(); i++){
+			toReturn += "Person Number " + i+1+"\n"; 
+			toReturn += clients.get(i).toString()+"\n";
+		}
+		toReturn += "Cost: " + getQuote();
+		
+		return toReturn;
+	}
+	public double getQuote(){
+		double cost = 0;
+		for(int i = 0; i<clients.size(); i++){
+			//base price
+			cost += 100;
+			for(int j = 0; j<clients.get(i).getConditions().size(); j++){
+				cost += clients.get(i).getConditions().get(j).getDegree();
+			}
+		}
+		cost = cost*type.getImpact();
+		return cost ;
+		
 	}
 	
 	

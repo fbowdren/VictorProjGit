@@ -10,24 +10,46 @@ import java.util.Collections;
 
 public class DatabaseManager {
 	
-	private static Connection conn = new ConnectionManager("root", "root").getConnection();
 	
+
+	private static String user = "root";
+	private static String password = "password";
+	private static Connection conn = new ConnectionManager(user, password).getConnection();
+	
+	
+	public DatabaseManager(String userIn, String passIn){
+		user = userIn;
+		password = passIn;
+		
+	}
+	
+	public DatabaseManager(){}
+		
+	
+	
+	//private as the only means of writing to DB will be through the writePolicy method
 	private static int writeClientToDataBase(Client clientIn) throws SQLException{
+		//sql to insert the 4 values of a client
 		String sql = "insert into client (first_name, last_name, policy_id, age) values (?,?,?,?)";
 		//prepare statement and return the auto generated key. This is the auto incremented customerID
 		PreparedStatement myStmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS );
+		//set variables
 		myStmt.setString(1, clientIn.getFname());
 		myStmt.setString(2, clientIn.getLname());
 		myStmt.setInt(3, clientIn.getPolicyNo());
 		myStmt.setInt(4, clientIn.getAge());
 		myStmt.executeUpdate();
+		//get the auto generated key which inidicates the primary key of the added client
 		ResultSet rs = myStmt.getGeneratedKeys();
 		rs.next();
-		//return the generated number which will bu used to write to normalized table
+		//return the generated number which will be used to write to normalized table
 		return rs.getInt(1);
 
 	}
+	//method to write to the normalised table
+	//private as the only means of writing to DB will be through the writePolicy method
 	private static void writeClientConditions(int clientId, ArrayList<Condition> conds) throws SQLException{
+		//for each condition a client has
 		for(int i = 0; i<conds.size(); i++){
 			String sql = "insert into client_term (client_id, term_id) values (?,?)";
 			PreparedStatement myStmt = conn.prepareStatement(sql);
@@ -38,8 +60,10 @@ public class DatabaseManager {
 		}
 		
 	}
+	//write a policy to the DB using the policy object 
 	public static void writePolicy(Policy myPolicy) throws SQLException{
 		String sql = "insert into policy (contact_no, email, policy_type_id) values (?,?,?)";
+		//prepare with returned policy number id as this will be passed into the customer object before writing to DB. IE as a foreign key
 		PreparedStatement myStmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS );
 		myStmt.setString(1, myPolicy.getContactNo());
 		myStmt.setString(2, myPolicy.getEmail());
@@ -49,6 +73,7 @@ public class DatabaseManager {
 		rs.next();
 		for(int i = 0; i<myPolicy.getClients().size(); i++){
 			myPolicy.getClients().get(i).setPolicyNo(rs.getInt(1));
+			//call write conditions to call write customer, as write customer return the auto generated id.
 			writeClientConditions(writeClientToDataBase(myPolicy.getClients().get(i)), myPolicy.getClients().get(i).getConditions()); 
 		}
 		
@@ -56,35 +81,43 @@ public class DatabaseManager {
 	}
 	public static Policy readPolicy(int policyNo) throws SQLException{
 		Statement stmt = conn.createStatement();
+		//pass the policy number into query statement
 		String query = "select policy.contact_no, policy.email, policy_type_id from policy where policy.policy_id = "+policyNo+";";
 		ResultSet rs = stmt.executeQuery(query);
 		rs.next();
 		String conNo = rs.getString(1);
 		String email = rs.getString(2);
 		Statement clientStmt = conn.createStatement();
+		//get all clients where policy number from reference
 		String clientQuery = "select client.client_id, client.first_name, client.last_name, client.age from client, policy where client.policy_id = policy.policy_id and policy.policy_id = "+policyNo+";";
 		ResultSet clientRs = clientStmt.executeQuery(clientQuery);
 		ArrayList<Client> myClientArray = new ArrayList<Client>(); 
+		//go through all clients returned
 		while (clientRs.next()){
 			ArrayList<Condition> myConditionArray = new ArrayList<Condition>();
 			Statement condStmt = conn.createStatement();
+			//create query for all conditions linked to that customer
 			String condQuery = "select term.name, term.factor, term.term_id from term, client, client_term where client.client_id = client_term.client_id and term.term_id = client_term.term_id and client.client_id ="+clientRs.getInt(1)+";";
 			ResultSet condRs = condStmt.executeQuery(condQuery);
+			//go through all conditions relevant to that client
 			while (condRs.next()){
 				myConditionArray.add(new Condition(condRs.getInt(3), condRs.getString(1), condRs.getInt(2)));
 			}
+			//build client object for each member of policy and add to arraylist
 			Client a = new Client(clientRs.getString(2), clientRs.getString(3), clientRs.getInt(4), myConditionArray, clientRs.getInt(1));
 			a.setExisting();
 			myClientArray.add(a);	
 		}
 		Statement typeStmt = conn.createStatement();
+		//get the policy type
 		String typeQuery = "select policy_type.name, policy_type.percentage_impact, policy_type.policy_type_id from policy, policy_type where policy.policy_type_id = policy_type.policy_type_id and policy.policy_id =" + policyNo+";";
 		ResultSet typeRs = typeStmt.executeQuery(typeQuery);
 		typeRs.next();		
 		PolicyType pt = new PolicyType(typeRs.getString(1), typeRs.getInt(2), typeRs.getInt(3));
-		
+		//construct the policy object with variables related to various query results and return it
 		return new Policy(myClientArray, conNo, email, pt, policyNo);
 	}
+	//method to read all stored conditions s
 	public static ArrayList<Condition> readConditions() throws SQLException{
 		ArrayList<Condition> myArray = new ArrayList<Condition>();
 		Statement stmt = conn.createStatement();
@@ -237,6 +270,30 @@ public class DatabaseManager {
 		PreparedStatement myPolDelStmt = conn.prepareStatement(query);
 		myPolDelStmt.setInt(1, policyNo);
 		myPolDelStmt.executeUpdate();
+		
+		
+	}
+	public static boolean isPolicyNumber(int policyNoIn) throws SQLException{
+		Statement stmt = conn.createStatement();
+		String query = "select count(policy.policy_id) from policy where policy.policy_id = '"+policyNoIn+"';";
+		ResultSet rs = stmt.executeQuery(query);
+		rs.next();
+		return rs.getInt(1) == 1;
+		
+	}
+	public static boolean isAdmin(String usernameIn, String passwordIn) throws SQLException{
+		
+		Statement stmt = conn.createStatement();
+		String userquery = "select count(admin.username) from admin where admin.username = '"+usernameIn+"';";
+		ResultSet userrs = stmt.executeQuery(userquery);
+		userrs.next();
+		boolean validUsername = userrs.getInt(1) == 1;
+		String passquery = "select count(admin.password) from admin where admin.password = '"+passwordIn+"';";
+		ResultSet passrs = stmt.executeQuery(passquery);
+		passrs.next();
+		boolean validpass = passrs.getInt(1) == 1;
+		
+		return validUsername && validpass;
 		
 		
 	}
