@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -18,14 +17,16 @@ public class Main {
 		int user = -1;
 		Scanner keyboardIn = new Scanner(System.in);
 		do{
+			/*Added this in 09/09/16
+			 * 
+			 * 
+			 */
 			System.out.println("*******************************************");
 			System.out.println("*");
 			System.out.println("*"+ "WELCOME TO THE HEALTH INSURANCE CALCULATOR");
 			System.out.println("*");
 			System.out.println("*******************************************");
 
-			
-			
 			System.out.println("1. New Policy\n2. Admin\n0. Exit");
 			user = keyboardIn.nextInt();
 			
@@ -42,18 +43,20 @@ public class Main {
 				}while(!uniqueEmail);
 				System.out.println("Please Enter Contact No");
 				String contactNo = keyboardIn.next();
+				System.out.println("Please Select Policy Type");
+				/*Added this in 09/09/16
+				 * 
+				 * 
+				 */
 				System.out.println("Policy Types: GOLD-25% INCREASE PREMIUM CARE +PRIVATE ROOM");
 				System.out.println("Policy Type: SILVER-10% INCREASE PRIVATE ROOM");
 				System.out.println("Policy Type: Bronze-5% INCREASE BASIC POLICY");
 
-				
-				System.out.println("Please Select Policy Type");
 				int policyChosen = 0; 
 				ArrayList<PolicyType> policyTypes = DatabaseManager.readPolicyTypes();
 				for(int i = 0; i< policyTypes.size(); i++){
 					System.out.println(i+1 + ". "+policyTypes.get(i).getName());
 				}
-
 				policyChosen = keyboardIn.nextInt();
 				ArrayList<Client> policyClients = new ArrayList<Client>();
 				System.out.println("Please enter number of customer for policy");
@@ -85,42 +88,38 @@ public class Main {
 					}while(userConditions != 0 || availCons.size() == 0);
 					policyClients.add(new Client(fName, lName, age, custCons));
 					
-					// Policy BackUp On Local 
-					
-					
 				}
-			
 				DatabaseManager.writePolicy(new Policy(policyClients, contactNo, email, policyTypes.get(policyChosen)));
-				// Policy BackUp On Local
-				Writer writer = null;
-
-				try {
-					{
-						   Calendar cal = Calendar.getInstance();
-						   DateFormat df = DateFormat.getDateTimeInstance(DateFormat.FULL,
-						        DateFormat.MEDIUM);
-
-						    System.out.println(df.format(cal.getTime()));
-				    writer = new BufferedWriter(new OutputStreamWriter(
-				          new FileOutputStream("policyTesterFile.txt"), "utf-8"));
-				    writer.write("Conditions: " +policyClients+email+contactNo+policyChosen+df);
-				}
-				}
-					catch (IOException ex) {
-				  // report
-				} finally {
-				   try {writer.close();} catch (Exception ex) {/*ignore*/}
-				}
-				// Instantiate a Date object
-			      
 			
+		
+			Writer writer = null;
+
+			try {
+				{
+					   Calendar cal = Calendar.getInstance();
+					   DateFormat df = DateFormat.getDateTimeInstance(DateFormat.FULL,
+					        DateFormat.MEDIUM);
+
+					    System.out.println(df.format(cal.getTime()));
+			    writer = new BufferedWriter(new OutputStreamWriter(
+			          new FileOutputStream("policyTesterFile.txt"), "utf-8"));
+			    writer.write("Conditions: " +policyClients+email+contactNo+policyChosen+df);
 			}
-			
-			
-			
+			}
+				catch (IOException ex) {
+			  // report
+			} finally {
+			   try {writer.close();} catch (Exception ex) {/*ignore*/}
+			}
+			// Instantiate a Date object
+			}
 			//launch login
-			if(user == 2)
-			{
+			/*
+			 * Added 9/09/16
+			 */
+			loginScreen.Login.main(args);
+
+			if(user == 2){
 				int adminSelect = -1;
 				do{
 					System.out.println("1. View Policy. \n2. Edit Policy\n3. Delete Policy\n0. Exit");
@@ -168,7 +167,5 @@ public class Main {
 		return valid;
 		
 	}
-	
-	
 
 }
